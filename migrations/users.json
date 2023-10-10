@@ -1,0 +1,14 @@
+[
+    {
+        "name": "admin",
+        "email": "admin@gmail.com",
+        "phone": "+959 458 380041",
+        "password": "00000000"
+    },
+    {
+        "name": "staff",
+        "email": "staff@gmail.com",
+        "phone": "+959 780 909574",
+        "password": "00000000"
+    }
+]

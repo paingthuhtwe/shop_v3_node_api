@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Admin_Can_Read"
+    },
+    {
+        "name": "Admin_Can_Download"
+    },
+    {
+        "name": "User_Can_Read"
+    },
+    {
+        "name": "User_Can_Download"
+    }
+]
