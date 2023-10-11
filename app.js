@@ -6,9 +6,11 @@ mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.DB_NAME}`);
 app.use(express.json());
 const permitRouter = require('./routes/permit');
 const roleRouter = require('./routes/role');
+const userRouter = require('./routes/user');
 
 app.use('/api/permits', permitRouter)
 app.use('/api/roles', roleRouter)
+app.use('/api', userRouter)
 
 app.use((error, req, res, next) => {
     res.status(error?.status ?? 500).json({ success: 0, message: error.message})
