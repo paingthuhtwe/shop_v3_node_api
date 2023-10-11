@@ -26,6 +26,10 @@ module.exports = {
             email: joi.string().email().required(),
             phone: joi.string().min(7).max(18).required(),
             password: joi.string().min(8).max(12).required(),
+        }),
+        login: joi.object({
+            phone: joi.string().min(7).max(18).required(),
+            password: joi.string().min(8).max(12).required(),
         })
     },
 }
