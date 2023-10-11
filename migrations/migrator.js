@@ -8,7 +8,7 @@ const RoleDB = require('../models/role');
 const PermitDB = require('../models/permit');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 4444;
 
 async function backupUsers() {
   try {

@@ -1,14 +1,14 @@
 [
     {
-        "name": "Admin_Can_Read"
+        "name": "Create_Category"
     },
     {
-        "name": "Admin_Can_Download"
+        "name": "Edit_Category"
     },
     {
-        "name": "User_Can_Read"
+        "name": "Delete_Category"
     },
     {
-        "name": "User_Can_Download"
+        "name": "Change_User_Password"
     }
 ]

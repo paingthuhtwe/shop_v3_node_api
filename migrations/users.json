@@ -1,14 +1,20 @@
 [
     {
-        "name": "admin",
-        "email": "admin@gmail.com",
-        "phone": "+959 458 380041",
+        "name": "Owner",
+        "email": "owner@gmail.com",
+        "phone": "+959458380041",
         "password": "00000000"
     },
     {
-        "name": "staff",
-        "email": "staff@gmail.com",
-        "phone": "+959 780 909574",
+        "name": "Manager",
+        "email": "manager@gmail.com",
+        "phone": "+959780909574",
+        "password": "00000000"
+    },
+    {
+        "name": "Supervisor",
+        "email": "supervisor@gmail.com",
+        "phone": "++959780909909",
         "password": "00000000"
     }
 ]
