@@ -22,11 +22,14 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
-  const dbUser = await DB.findOne({ phone: req.body.phone }).populate('role permits', '-__v').select('-__v');
+  const dbUser = await DB.findOne({ phone: req.body.phone })
+    .populate("role permits", "-__v")
+    .select("-__v");
   if (dbUser) {
     if (Helper.verifyPassword(req.body.password, dbUser.password)) {
-        let user = dbUser.toObject();
-        delete user.password;
+      let user = dbUser.toObject();
+      delete user.password;
+      Helper.redisSet(user._id, user);
       Helper.fMsg(res, "Login successful!", user);
     } else {
       const error = new Error("Password is incorrect!");
@@ -43,8 +46,10 @@ const login = async (req, res, next) => {
 };
 
 const all = async (rsq, res, next) => {
-    const roles = await DB.find().populate('role permits', '-__v').select('-__v -password');
-    Helper.fMsg(res, "All Users", roles);
-  };
+  const roles = await DB.find()
+    .populate("role permits", "-__v")
+    .select("-__v -password");
+  Helper.fMsg(res, "All Users", roles);
+};
 
 module.exports = { register, login, all };
