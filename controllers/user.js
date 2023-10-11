@@ -29,6 +29,7 @@ const login = async (req, res, next) => {
     if (Helper.verifyPassword(req.body.password, dbUser.password)) {
       let user = dbUser.toObject();
       delete user.password;
+      user.token = Helper.generateToken(user)
       Helper.redisSet(user._id, user);
       Helper.fMsg(res, "Login successful!", user);
     } else {

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const Redis = require('async-redis').createClient();
+const jwt = require('jsonwebtoken'); 
 
 module.exports = {
     encode: payload => bcrypt.hashSync(payload),
@@ -9,5 +10,6 @@ module.exports = {
     },
     redisSet: async (id, value) => await Redis.set(id.toString(), JSON.stringify(value)),
     redisGet: async (id) => JSON.parse(await Redis.get(id.toString())),
-    redisDrop: async (id) => await Redis.del(id.toString())
+    redisDrop: async (id) => await Redis.del(id.toString()),
+    generateToken: (payload) => jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: '1h' })
 }
