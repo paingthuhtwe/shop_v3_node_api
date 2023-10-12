@@ -9,9 +9,7 @@ const all = async (rsq, res, next) => {
 const add = async (req, res, next) => {
   const dbPermit = await DB.findOne({ name: req.body.name });
   if (dbPermit) {
-    const error = new Error("Permission name is already in used!");
-    error.status = 409;
-    next(error);
+    Helper.sendError(409, "Permission name is already in use.", next);
   } else {
     const result = await new DB(req.body).save();
     Helper.fMsg(res, "Successful permission saved!", result);
@@ -23,9 +21,7 @@ const get = async (req, res, next) => {
   if (permit) {
     Helper.fMsg(res, `Permission for id - ${req.params.id}`, permit);
   } else {
-    const error = new Error(`No Records for id - ${req.params.id}`);
-    error.status = 400;
-    next(error);
+    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
   }
 };
 
@@ -36,9 +32,7 @@ const patch = async (req, res, next) => {
     const result = await DB.findById(dbPermit._id);
     Helper.fMsg(res, "Successful permission upadated!", result);
   } else {
-    const error = new Error(`No Records for id - ${req.params.id}`);
-    error.status = 400;
-    next(error);
+    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
   }
 };
 
@@ -48,9 +42,7 @@ const drop = async (req, res, next) => {
     await DB.findByIdAndDelete(dbPermit._id);
     Helper.fMsg(res, "Successful permission deleted!");
   } else {
-    const error = new Error(`No Records for id - ${req.params.id}`);
-    error.status = 400;
-    next(error);
+    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
   }
 };
 

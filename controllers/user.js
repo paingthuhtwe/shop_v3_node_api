@@ -4,17 +4,11 @@ const Helper = require("../utils/helper");
 const register = async (req, res, next) => {
   const dbUserEmail = await DB.findOne({ email: req.body.email });
   if (dbUserEmail) {
-    const error = new Error("Email is already in used!");
-    error.status = 400;
-    next(error);
-    return;
+    Helper.sendError(409, `Email is already in use.`, next);
   }
   const dbUserPhone = await DB.findOne({ phone: req.body.phone });
   if (dbUserPhone) {
-    const error = new Error("Phone is already in used!");
-    error.status = 400;
-    next(error);
-    return;
+    Helper.sendError(409, `Phone is already in use.`, next);
   }
   req.body.password = Helper.encode(req.body.password);
   const result = await new DB(req.body).save();
@@ -29,20 +23,14 @@ const login = async (req, res, next) => {
     if (Helper.verifyPassword(req.body.password, dbUser.password)) {
       let user = dbUser.toObject();
       delete user.password;
-      user.token = Helper.generateToken(user)
+      user.token = Helper.generateToken(user);
       Helper.redisSet(user._id, user);
       Helper.fMsg(res, "Login successful!", user);
     } else {
-      const error = new Error("Password is incorrect!");
-      error.status = 400;
-      next(error);
-      return;
+      Helper.sendError(400, `Password is incorrect.`, next);
     }
   } else {
-    const error = new Error("Creditial Error!");
-    error.status = 400;
-    next(error);
-    return;
+    Helper.sendError(400, `Creditial Error!`, next);
   }
 };
 
@@ -54,15 +42,23 @@ const all = async (req, res, next) => {
 };
 
 const addRole = async (req, res, next) => {
-  await DB.findByIdAndUpdate(req.body.user_id, {$push: {role: req.body.role_id}})
-  const result = await DB.findById(req.body.user_id).populate('role permits', '-__v').select('-__v -password');
-  Helper.fMsg(res, 'Add role successful', result);
+  await DB.findByIdAndUpdate(req.body.user_id, {
+    $push: { role: req.body.role_id },
+  });
+  const result = await DB.findById(req.body.user_id)
+    .populate("role permits", "-__v")
+    .select("-__v -password");
+  Helper.fMsg(res, "Add role successful", result);
 };
 
 const removeRole = async (req, res, next) => {
-  await DB.findByIdAndUpdate(req.body.user_id, {$pull: {role: req.body.role_id}})
-  const result = await DB.findById(req.body.user_id).populate('role permits', '-__v').select('-__v -password');
-  Helper.fMsg(res, 'Remove role successful', result);
+  await DB.findByIdAndUpdate(req.body.user_id, {
+    $pull: { role: req.body.role_id },
+  });
+  const result = await DB.findById(req.body.user_id)
+    .populate("role permits", "-__v")
+    .select("-__v -password");
+  Helper.fMsg(res, "Remove role successful", result);
 };
 
 module.exports = { register, login, all, addRole, removeRole };
