@@ -84,44 +84,56 @@ const drop = async (req, res, next) => {
 
 const roleAddPermit = async (req, res, next) => {
   try {
-    const dbRole = await DB.findById(req.body.role_id);
-    const dbPermit = await Permit_DB.findById(req.body.permit_id);
-    if (dbRole && dbPermit) {
-      await DB.findByIdAndUpdate(dbRole._id, {
-        $push: { permits: dbPermit._id },
-      });
-      const result = await DB.findById(dbRole._id);
-      Helper.fMsg(res, "Permit Added to Role Successfully.", result);
-    } else {
+    const [dbRole, dbPermit] = [
+      await DB.findById(req.body.role_id),
+      await Permit_DB.findById(req.body.permit_id),
+    ];
+    if (!dbRole || !dbPermit) {
+      Helper.sendError(400, "Invalid role or permit", next);
+      return;
+    }
+    const checkExist = dbRole.permits.includes(dbPermit._id);
+    if (checkExist) {
       Helper.sendError(
-        404,
-        `No Records Found for Requested ID - ${req.params.id}`,
+        400,
+        "The permit has already been added to the role.",
         next
       );
+      return;
     }
+    await DB.findByIdAndUpdate(dbRole._id, {
+      $push: { permits: dbPermit._id },
+    });
+    const result = await DB.findById(dbRole._id);
+    Helper.fMsg(res, "Permit Added to Role Successfully.", result);
   } catch (error) {
-    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
+    Helper.sendError(500, `Error duing add permit: ${error.message}`, next);
   }
 };
 
 const roleRemovePermit = async (req, res, next) => {
   try {
     const dbRole = await DB.findById(req.body.role_id);
-    if (dbRole) {
-      await DB.findOneAndUpdate(dbRole._id, {
-        $pull: { permits: req.body.permit_id },
-      });
-      const result = await DB.findById(dbRole._id);
-      Helper.fMsg(res, "Permit Removed from Role Successfully.", result);
-    } else {
+    if (!dbRole) {
+      Helper.sendError(400, "Invalid role_id", next);
+      return;
+    }
+    const checkExist = dbRole.permits.includes(req.body.permit_id);
+    if (!checkExist) {
       Helper.sendError(
-        404,
-        `No Records Found for Requested ID - ${req.params.id}`,
+        400,
+        "The permit has already been removed from the role.",
         next
       );
+      return;
     }
+    await DB.findOneAndUpdate(dbRole._id, {
+      $pull: { permits: req.body.permit_id },
+    });
+    const result = await DB.findById(dbRole._id);
+    Helper.fMsg(res, "Permit Removed from Role Successfully.", result);
   } catch (error) {
-    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
+    Helper.sendError(500, `Error during remove permit: ${error.message}`, next);
   }
 };
 
