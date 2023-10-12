@@ -1,14 +1,14 @@
 [
-    {
-        "name": "Create_Category"
-    },
-    {
-        "name": "Edit_Category"
-    },
-    {
-        "name": "Delete_Category"
-    },
-    {
-        "name": "Change_User_Password"
-    }
+  {
+    "name": "Create_Category"
+  },
+  {
+    "name": "Edit_Category"
+  },
+  {
+    "name": "Delete_Category"
+  },
+  {
+    "name": "Change_User_Password"
+  }
 ]

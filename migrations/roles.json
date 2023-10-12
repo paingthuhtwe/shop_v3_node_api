@@ -1,11 +1,11 @@
 [
-    {
-        "name": "Owner"
-    },
-    {
-        "name": "Manager"
-    },
-    {
-        "name": "Supervisor"
-    }
+  {
+    "name": "Owner"
+  },
+  {
+    "name": "Manager"
+  },
+  {
+    "name": "Supervisor"
+  }
 ]

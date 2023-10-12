@@ -1,20 +1,20 @@
 [
-    {
-        "name": "Owner",
-        "email": "owner@gmail.com",
-        "phone": "+959458380041",
-        "password": "00000000"
-    },
-    {
-        "name": "Manager",
-        "email": "manager@gmail.com",
-        "phone": "+959780909574",
-        "password": "00000000"
-    },
-    {
-        "name": "Supervisor",
-        "email": "supervisor@gmail.com",
-        "phone": "++959780909909",
-        "password": "00000000"
-    }
+  {
+    "name": "Owner",
+    "email": "owner@gmail.com",
+    "phone": "+959458380041",
+    "password": "00000000"
+  },
+  {
+    "name": "Manager",
+    "email": "manager@gmail.com",
+    "phone": "+959780909574",
+    "password": "00000000"
+  },
+  {
+    "name": "Supervisor",
+    "email": "supervisor@gmail.com",
+    "phone": "++959780909909",
+    "password": "00000000"
+  }
 ]

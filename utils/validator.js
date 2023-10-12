@@ -6,7 +6,11 @@ module.exports = {
     return (req, res, next) => {
       let result = schema.validate(req.body);
       if (result.error) {
-        Helper.sendError(400, result.error.details[0].message, next);
+        Helper.sendError(
+          400,
+          `Validation Error: ${result.error.details[0].message}`,
+          next
+        );
       } else {
         next();
       }
@@ -18,7 +22,11 @@ module.exports = {
       obj[`${name}`] = req.params[`${name}`];
       let result = schema.validate(obj);
       if (result.error) {
-        Helper.sendError(400, result.error.details[0].message, next);
+        Helper.sendError(
+          400,
+          `Validation Error: ${result.error.details[0].message}`,
+          next
+        );
       } else {
         next();
       }
@@ -28,8 +36,7 @@ module.exports = {
     return async (req, res, next) => {
       try {
         const token = req.headers.authorization;
-        !token &&
-          Helper.sendError(401, "Authorization token is required", next);
+        !token && Helper.sendError(401, "Authorization Token Required", next);
         if (token && token.startsWith("Bearer ")) {
           const realToken = token.split(" ")[1];
           const decode = jwt.verify(realToken, process.env.SECRET_KEY);
@@ -39,51 +46,38 @@ module.exports = {
               req.user = redisUserData;
               next();
             } else {
-              Helper.sendError(401, "Token authorization failed.", next);
+              Helper.sendError(401, "Token Authorization Failed", next);
             }
           } else {
-            Helper.sendError(401, "Invalid token", next);
+            Helper.sendError(401, "Invalid Token", next);
           }
         } else {
-          Helper.sendError(401, "Invalid token format", next);
+          Helper.sendError(401, "Invalid Token Format", next);
         }
       } catch (err) {
-        Helper.sendError(401, err.message, next);
+        Helper.sendError(401, `Token Verification Error: ${err.message}`, next);
       }
     };
   },
-  validateIsOwnerToken: () => {
+  validateRole: (payload) => {
     return async (req, res, next) => {
       try {
-        const token = req.headers.authorization;
-        !token &&
-          Helper.sendError(401, "Authorization token is required", next);
-        if (token && token.startsWith("Bearer ")) {
-          const realToken = token.split(" ")[1];
-          const decode = jwt.verify(realToken, process.env.SECRET_KEY);
-          if (decode.role[0].name !== "Owner") {
-            Helper.sendError(
-              401,
-              "Access denied: You do not have the necessary permissions.",
-              next
-            );
-          }
-          if (decode) {
-            const redisUserData = await Helper.redisGet(decode._id);
-            if (redisUserData) {
-              req.user = redisUserData;
-              next();
-            } else {
-              Helper.sendError(401, "Token authorization failed.", next);
-            }
-          } else {
-            Helper.sendError(401, "Invalid token", next);
-          }
+        const reqRole = req.user.role.find((role) => role.name === payload);
+        if (reqRole) {
+          next();
         } else {
-          Helper.sendError(401, "Invalid token format", next);
+          Helper.sendError(
+            403,
+            "Access Denied: You do not have the necessary permissions.",
+            next
+          );
         }
       } catch (err) {
-        Helper.sendError(401, err.message, next);
+        Helper.sendError(
+          403,
+          "Access Denied: You do not have the necessary permissions.",
+          next
+        );
       }
     };
   },
