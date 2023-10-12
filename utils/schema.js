@@ -30,6 +30,14 @@ module.exports = {
         login: joi.object({
             phone: joi.string().min(7).max(18).required(),
             password: joi.string().min(8).max(12).required(),
+        }),
+        addRole: joi.object({
+            user_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+            role_id: joi.string().regex(/^[0-9a-fA-F]{24}$/)
+        }),
+        removeRole: joi.object({
+            user_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+            role_id: joi.string().regex(/^[0-9a-fA-F]{24}$/)
         })
     },
 }
