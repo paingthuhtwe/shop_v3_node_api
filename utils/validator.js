@@ -81,4 +81,26 @@ module.exports = {
       }
     };
   },
+  validatePermit: (payload = []) => {
+    return async (req, res, next) => {
+      try {
+        const reqPermit = req.user.permits.find((permit) => payload.includes(permit.name));
+        if (reqPermit) {
+          next();
+        } else {
+          Helper.sendError(
+            403,
+            "Access Denied: You do not have the necessary permissions.",
+            next
+          );
+        }
+      } catch (err) {
+        Helper.sendError(
+          403,
+          "Access Denied: You do not have the necessary permissions.",
+          next
+        );
+      }
+    };
+  },
 };
