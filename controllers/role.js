@@ -115,7 +115,7 @@ const roleRemovePermit = async (req, res, next) => {
   try {
     const dbRole = await DB.findById(req.body.role_id);
     if (!dbRole) {
-      Helper.sendError(400, "Invalid role_id", next);
+      Helper.sendError(400, "Invalid role", next);
       return;
     }
     const checkExist = dbRole.permits.includes(req.body.permit_id);

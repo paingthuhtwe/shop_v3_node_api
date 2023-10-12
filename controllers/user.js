@@ -1,10 +1,11 @@
 const Helper = require("../utils/helper");
-const DB = require("../models/user");
+const UserDB = require("../models/user");
 const RoleDB = require("../models/role");
+const PermitDB = require("../models/permit");
 
 const register = async (req, res, next) => {
   try {
-    const dbUserEmail = await DB.findOne({ email: req.body.email });
+    const dbUserEmail = await UserDB.findOne({ email: req.body.email });
     if (dbUserEmail) {
       Helper.sendError(
         409,
@@ -12,7 +13,7 @@ const register = async (req, res, next) => {
         next
       );
     }
-    const dbUserPhone = await DB.findOne({ phone: req.body.phone });
+    const dbUserPhone = await UserDB.findOne({ phone: req.body.phone });
     if (dbUserPhone) {
       Helper.sendError(
         409,
@@ -21,7 +22,7 @@ const register = async (req, res, next) => {
       );
     }
     req.body.password = Helper.encode(req.body.password);
-    const result = await new DB(req.body).save();
+    const result = await new UserDB(req.body).save();
     Helper.fMsg(res, "Registration successful", result);
   } catch (error) {
     Helper.sendError(500, `Registration failed: ${error.message}`, next);
@@ -30,7 +31,7 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const dbUser = await DB.findOne({ phone: req.body.phone })
+    const dbUser = await UserDB.findOne({ phone: req.body.phone })
       .populate("role permits", "-__v")
       .select("-__v");
     if (dbUser) {
@@ -61,7 +62,7 @@ const login = async (req, res, next) => {
 
 const all = async (req, res, next) => {
   try {
-    const roles = await DB.find()
+    const roles = await UserDB.find()
       .populate("role permits", "-__v")
       .select("-__v -password");
     Helper.fMsg(res, "All Users", roles);
@@ -73,7 +74,7 @@ const all = async (req, res, next) => {
 const addRole = async (req, res, next) => {
   try {
     const [dbUser, dbRole] = [
-      await DB.findById(req.body.user_id),
+      await UserDB.findById(req.body.user_id),
       await RoleDB.findById(req.body.role_id),
     ];
     if (!dbUser || !dbRole) {
@@ -89,8 +90,8 @@ const addRole = async (req, res, next) => {
       );
       return;
     }
-    await DB.findByIdAndUpdate(dbUser._id, { $push: { role: dbRole._id } });
-    const result = await DB.findById(dbUser._id)
+    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { role: dbRole._id } });
+    const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
       .select("-__v -password");
     Helper.fMsg(res, "Role added successfully", result);
@@ -101,7 +102,7 @@ const addRole = async (req, res, next) => {
 
 const removeRole = async (req, res, next) => {
   try {
-    const dbUser = await DB.findById(req.body.user_id);
+    const dbUser = await UserDB.findById(req.body.user_id);
     if (!dbUser) {
       Helper.sendError(400, "Invalid user_id.", next);
       return;
@@ -115,10 +116,10 @@ const removeRole = async (req, res, next) => {
       );
       return;
     }
-    await DB.findByIdAndUpdate(dbUser._id, {
+    await UserDB.findByIdAndUpdate(dbUser._id, {
       $pull: { role: req.body.role_id },
     });
-    const result = await DB.findById(dbUser._id)
+    const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
       .select("-__v -password");
     Helper.fMsg(res, "Role removed successfully", result);
@@ -127,4 +128,61 @@ const removeRole = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, all, addRole, removeRole };
+const addPermit = async (req, res, next) => {
+  try {
+    const [dbUser, dbPermit] = [
+      await UserDB.findById(req.body.user_id),
+      await PermitDB.findById(req.body.permit_id),
+    ];
+    if (!dbUser || !dbPermit) {
+      Helper.sendError(400, "Invalid user or permit.", next);
+      return;
+    }
+    const checkExist = dbUser.permits.includes(dbPermit._id);
+    if (checkExist) {
+      Helper.sendError(
+        400,
+        "The permit has already been added to the user.",
+        next
+      );
+      return;
+    }
+    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { permits: dbPermit._id } });
+    const result = await UserDB.findById(dbUser._id)
+      .populate("role permits", "-__v")
+      .select("-__v -password");
+    Helper.fMsg(res, "Permit added successfully", result);
+  } catch (error) {
+    Helper.sendError(500, `Error adding the permit: ${error.message}`, next);
+  }
+};
+
+const removePermit = async (req, res, next) => {
+  try {
+    const dbUser = await UserDB.findById(req.body.user_id);
+    if (!dbUser) {
+      Helper.sendError(400, "Invalid user_id.", next);
+      return;
+    }
+    const checkExist = dbUser.permits.includes(req.body.permit_id);
+    if (!checkExist) {
+      Helper.sendError(
+        400,
+        "The permit has already been removed from the user.",
+        next
+      );
+      return;
+    }
+    await UserDB.findByIdAndUpdate(dbUser._id, {
+      $pull: { permits: req.body.permit_id },
+    });
+    const result = await UserDB.findById(dbUser._id)
+      .populate("role permits", "-__v")
+      .select("-__v -password");
+    Helper.fMsg(res, "Permit removed successfully", result);
+  } catch (error) {
+    Helper.sendError(500, `Error removing the permit: ${error.message}`, next);
+  }
+};
+
+module.exports = { register, login, all, addRole, removeRole, addPermit, removePermit };

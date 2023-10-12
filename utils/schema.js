@@ -39,5 +39,13 @@ module.exports = {
       user_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
       role_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
+    addPermit: joi.object({
+      user_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      permit_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    }),
+    removePermit: joi.object({
+      user_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      permit_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    }),
   },
 };
