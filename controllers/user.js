@@ -46,11 +46,23 @@ const login = async (req, res, next) => {
   }
 };
 
-const all = async (rsq, res, next) => {
+const all = async (req, res, next) => {
   const roles = await DB.find()
     .populate("role permits", "-__v")
     .select("-__v -password");
   Helper.fMsg(res, "All Users", roles);
 };
 
-module.exports = { register, login, all };
+const addRole = async (req, res, next) => {
+  await DB.findByIdAndUpdate(req.body.user_id, {$push: {role: req.body.role_id}})
+  const result = await DB.findById(req.body.user_id).populate('role permits', '-__v').select('-__v -password');
+  Helper.fMsg(res, 'Add role successful', result);
+};
+
+const removeRole = async (req, res, next) => {
+  await DB.findByIdAndUpdate(req.body.user_id, {$pull: {role: req.body.role_id}})
+  const result = await DB.findById(req.body.user_id).populate('role permits', '-__v').select('-__v -password');
+  Helper.fMsg(res, 'Remove role successful', result);
+};
+
+module.exports = { register, login, all, addRole, removeRole };
