@@ -6,9 +6,7 @@ module.exports = {
     return (req, res, next) => {
       let result = schema.validate(req.body);
       if (result.error) {
-        const error = new Error(result.error.details[0].message);
-        error.status = 400;
-        next(error);
+        Helper.sendError(400, result.error.details[0].message, next);
       } else {
         next();
       }
@@ -20,9 +18,7 @@ module.exports = {
       obj[`${name}`] = req.params[`${name}`];
       let result = schema.validate(obj);
       if (result.error) {
-        const error = new Error(result.error.details[0].message);
-        error.status = 400;
-        next(error);
+        Helper.sendError(400, result.error.details[0].message, next);
       } else {
         next();
       }
@@ -32,11 +28,8 @@ module.exports = {
     return async (req, res, next) => {
       try {
         const token = req.headers.authorization;
-        if (!token) {
-          const error = new Error("Authorization token is required");
-          error.status = 401;
-          next(error);
-        }
+        !token &&
+          Helper.sendError(401, "Authorization token is required", next);
         if (token && token.startsWith("Bearer ")) {
           const realToken = token.split(" ")[1];
           const decode = jwt.verify(realToken, process.env.SECRET_KEY);
@@ -46,24 +39,16 @@ module.exports = {
               req.user = redisUserData;
               next();
             } else {
-              const error = new Error("Token authorization failed");
-              error.status = 401;
-              next(error);
+              Helper.sendError(401, "Token authorization failed.", next);
             }
           } else {
-            const error = new Error("Invalid token");
-            error.status = 401;
-            next(error);
+            Helper.sendError(401, "Invalid token", next);
           }
         } else {
-          const error = new Error("Invalid token format");
-          error.status = 401;
-          next(error);
+          Helper.sendError(401, "Invalid token format", next);
         }
       } catch (err) {
-        const error = new Error(err.message);
-        error.status = 401;
-        next(error);
+        Helper.sendError(401, err.message, next);
       }
     };
   },
@@ -71,20 +56,17 @@ module.exports = {
     return async (req, res, next) => {
       try {
         const token = req.headers.authorization;
-        if (!token) {
-          const error = new Error("Authorization token is required");
-          error.status = 401;
-          next(error);
-        }
+        !token &&
+          Helper.sendError(401, "Authorization token is required", next);
         if (token && token.startsWith("Bearer ")) {
           const realToken = token.split(" ")[1];
           const decode = jwt.verify(realToken, process.env.SECRET_KEY);
           if (decode.role[0].name !== "Owner") {
-            const error = new Error(
-              "Access denied: You do not have the necessary permissions."
+            Helper.sendError(
+              401,
+              "Access denied: You do not have the necessary permissions.",
+              next
             );
-            error.status = 401;
-            next(error);
           }
           if (decode) {
             const redisUserData = await Helper.redisGet(decode._id);
@@ -92,24 +74,16 @@ module.exports = {
               req.user = redisUserData;
               next();
             } else {
-              const error = new Error("Token authorization failed");
-              error.status = 401;
-              next(error);
+              Helper.sendError(401, "Token authorization failed.", next);
             }
           } else {
-            const error = new Error("Invalid token");
-            error.status = 401;
-            next(error);
+            Helper.sendError(401, "Invalid token", next);
           }
         } else {
-          const error = new Error("Invalid token format");
-          error.status = 401;
-          next(error);
+          Helper.sendError(401, "Invalid token format", next);
         }
       } catch (err) {
-        const error = new Error(err.message);
-        error.status = 401;
-        next(error);
+        Helper.sendError(401, err.message, next);
       }
     };
   },
