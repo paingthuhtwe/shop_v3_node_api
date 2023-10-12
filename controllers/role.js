@@ -3,77 +3,125 @@ const Permit_DB = require("../models/permit");
 const Helper = require("../utils/helper");
 
 const all = async (rsq, res, next) => {
-  const roles = await DB.find().populate("permits", "_id name");
-  Helper.fMsg(res, "All Roles", roles);
+  try {
+    const roles = await DB.find().populate("permits", "_id name");
+    Helper.fMsg(res, "All Roles", roles);
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
+  }
 };
 
 const add = async (req, res, next) => {
-  const dbRole = await DB.findOne({ name: req.body.name }).populate(
-    "permits",
-    "_id name"
-  );
-  if (dbRole) {
-    Helper.sendError(409, `Role name is already in use.`, next);
-  } else {
-    const result = await new DB(req.body).save();
-    Helper.fMsg(res, "Successful role saved!", result);
+  try {
+    const dbRole = await DB.findOne({ name: req.body.name }).populate(
+      "permits",
+      "_id name"
+    );
+    if (dbRole) {
+      Helper.sendError(409, `Role name is already in use.`, next);
+    } else {
+      const result = await new DB(req.body).save();
+      Helper.fMsg(res, "Role Saved Successfully!", result);
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
 const get = async (req, res, next) => {
-  const permit = await DB.findById(req.params.id);
-  if (permit) {
-    Helper.fMsg(res, `Role for id - ${req.params.id}`, permit);
-  } else {
-    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
+  try {
+    const permit = await DB.findById(req.params.id);
+    if (permit) {
+      Helper.fMsg(res, `Role for id - ${req.params.id}`, permit);
+    } else {
+      Helper.sendError(
+        404,
+        `No Records Found for Requested ID - ${req.params.id}`,
+        next
+      );
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
 const patch = async (req, res, next) => {
-  const dbRole = await DB.findById(req.params.id);
-  if (dbRole) {
-    await DB.findByIdAndUpdate(dbRole._id, req.body);
-    const result = await DB.findById(dbRole._id);
-    Helper.fMsg(res, "Successful role upadated!", result);
-  } else {
-    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
+  try {
+    const dbRole = await DB.findById(req.params.id);
+    if (dbRole) {
+      await DB.findByIdAndUpdate(dbRole._id, req.body);
+      const result = await DB.findById(dbRole._id);
+      Helper.fMsg(res, "Role Updated Successfully!", result);
+    } else {
+      Helper.sendError(
+        404,
+        `No Records Found for Requested ID - ${req.params.id}`,
+        next
+      );
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
 const drop = async (req, res, next) => {
-  const dbRole = await DB.findById(req.params.id);
-  if (dbRole) {
-    await DB.findByIdAndDelete(dbRole._id);
-    Helper.fMsg(res, "Successful role deleted!");
-  } else {
-    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
+  try {
+    const dbRole = await DB.findById(req.params.id);
+    if (dbRole) {
+      await DB.findByIdAndDelete(dbRole._id);
+      Helper.fMsg(res, "Role Deleted Successfully!");
+    } else {
+      Helper.sendError(
+        404,
+        `No Records Found for Requested ID - ${req.params.id}`,
+        next
+      );
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
 const roleAddPermit = async (req, res, next) => {
-  const dbRole = await DB.findById(req.body.role_id);
-  const dbPermit = await Permit_DB.findById(req.body.permit_id);
-  if (dbRole && dbPermit) {
-    await DB.findByIdAndUpdate(dbRole._id, {
-      $push: { permits: dbPermit._id },
-    });
-    const result = await DB.findById(dbRole._id);
-    Helper.fMsg(res, "Successful Permit add to Role.", result);
-  } else {
-    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
+  try {
+    const dbRole = await DB.findById(req.body.role_id);
+    const dbPermit = await Permit_DB.findById(req.body.permit_id);
+    if (dbRole && dbPermit) {
+      await DB.findByIdAndUpdate(dbRole._id, {
+        $push: { permits: dbPermit._id },
+      });
+      const result = await DB.findById(dbRole._id);
+      Helper.fMsg(res, "Permit Added to Role Successfully.", result);
+    } else {
+      Helper.sendError(
+        404,
+        `No Records Found for Requested ID - ${req.params.id}`,
+        next
+      );
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
 const roleRemovePermit = async (req, res, next) => {
-  const dbRole = await DB.findById(req.body.role_id);
-  if (dbRole) {
-    await DB.findOneAndUpdate(dbRole._id, {
-      $pull: { permits: req.body.permit_id },
-    });
-    const result = await DB.findById(dbRole._id);
-    Helper.fMsg(res, "Successful Permit remove from Role.", result);
-  } else {
-    Helper.sendError(400, `No Records for request id - ${req.params.id}`, next);
+  try {
+    const dbRole = await DB.findById(req.body.role_id);
+    if (dbRole) {
+      await DB.findOneAndUpdate(dbRole._id, {
+        $pull: { permits: req.body.permit_id },
+      });
+      const result = await DB.findById(dbRole._id);
+      Helper.fMsg(res, "Permit Removed from Role Successfully.", result);
+    } else {
+      Helper.sendError(
+        404,
+        `No Records Found for Requested ID - ${req.params.id}`,
+        next
+      );
+    }
+  } catch (error) {
+    Helper.sendError(500, `Internal Server Error: ${error.message}`, next);
   }
 };
 
