@@ -59,10 +59,10 @@ module.exports = {
       }
     };
   },
-  validateRole: (payload) => {
+  validateRole: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqRole = req.user.role.find((role) => role.name === payload);
+        const reqRole = req.user.role.find((role) => payload.includes(role.name));
         if (reqRole) {
           next();
         } else {
