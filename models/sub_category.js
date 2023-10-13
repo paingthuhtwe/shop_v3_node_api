@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 const helper = require("../utils/helper");
 const { Schema } = mongoose;
 
-const CategorySchema = new Schema({
+const SubCategorySchema = new Schema({
   name: { type: String, required: true, unique: true },
   image: { type: String, required: true },
-  sub_categories: [{ type: Schema.Types.ObjectId, ref: 'sub_category' }],
+  child_categories: [{ type: Schema.Types.ObjectId, ref: 'child_category' }],
   created_at: { type: Date, default: helper.currentDate() },
   updated_at: { type: Date, default: helper.currentDate() }
 });
 
-const Category = mongoose.model("category", CategorySchema);
+const SubCategory = mongoose.model("sub_category", SubCategorySchema);
 
-module.exports = Category;
+module.exports = SubCategory;

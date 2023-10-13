@@ -115,7 +115,8 @@ module.exports = {
   validatePermit: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqPermit = req.user.permits.find((permit) =>
+        console.log(req.user)
+        const reqPermit = req.user.permits.filter((permit) =>
           payload.includes(permit.name)
         );
         if (reqPermit) {

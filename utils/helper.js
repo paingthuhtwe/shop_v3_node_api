@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const Redis = require("async-redis").createClient();
 const jwt = require("jsonwebtoken");
+const moment = require("moment");
 
 module.exports = {
   encode: (payload) => bcrypt.hashSync(payload),
@@ -18,4 +19,5 @@ module.exports = {
     const error = new Error(message);
     (error.status = status), next(error);
   },
+  currentDate: () => moment().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]")
 };

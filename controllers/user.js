@@ -36,6 +36,7 @@ const login = async (req, res, next) => {
       .select("-__v");
     if (dbUser) {
       if (Helper.verifyPassword(req.body.password, dbUser.password)) {
+        Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
         let user = dbUser.toObject();
         delete user.password;
         user.token = Helper.generateToken(user);
@@ -90,7 +91,8 @@ const addRole = async (req, res, next) => {
       );
       return;
     }
-    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { role: dbRole._id } });
+    Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
+    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { role: dbRole._id }, updated_at: Helper.currentDate() });
     const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
       .select("-__v -password");
@@ -116,8 +118,10 @@ const removeRole = async (req, res, next) => {
       );
       return;
     }
+    Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
     await UserDB.findByIdAndUpdate(dbUser._id, {
       $pull: { role: req.body.role_id },
+      updated_at: Helper.currentDate()
     });
     const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
@@ -147,7 +151,8 @@ const addPermit = async (req, res, next) => {
       );
       return;
     }
-    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { permits: dbPermit._id } });
+    Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
+    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { permits: dbPermit._id }, updated_at: Helper.currentDate() });
     const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
       .select("-__v -password");
@@ -173,8 +178,10 @@ const removePermit = async (req, res, next) => {
       );
       return;
     }
+    Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
     await UserDB.findByIdAndUpdate(dbUser._id, {
       $pull: { permits: req.body.permit_id },
+      updated_at: Helper.currentDate()
     });
     const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")

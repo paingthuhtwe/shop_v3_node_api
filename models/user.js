@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const helper = require("../utils/helper");
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
@@ -8,8 +9,8 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   role: [{ type: Schema.Types.ObjectId, ref: "role" }],
   permits: [{ type: Schema.Types.ObjectId, ref: "permit" }],
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
+  created_at: { type: Date, default: helper.currentDate() },
+  updated_at: { type: Date, default: helper.currentDate() },
 });
 
 const User = mongoose.model("user", UserSchema);

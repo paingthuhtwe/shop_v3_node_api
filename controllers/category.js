@@ -79,7 +79,7 @@ const patch = async (req, res, next) => {
         return;
       }
     }
-    const updateData = {};
+    const updateData = { updated_at: Helper.currentDate() };
     if (req.body.name) {
       updateData["name"] = req.body.name;
     }
