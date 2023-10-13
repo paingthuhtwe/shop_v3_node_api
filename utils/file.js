@@ -19,7 +19,7 @@ const saveMultipleFile = (name, req) => {
 
 const deleteFile = (filename) => {
   const filepath = `./uploads/${filename}`;
-  fs.unlinkSync(filepath);
+  fs.existsSync(filepath) && fs.unlinkSync(filepath);
 };
 
 const deleteMultipleFile = (filenames) => {
