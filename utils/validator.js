@@ -98,14 +98,14 @@ module.exports = {
           next();
         } else {
           Helper.sendError(
-            403,
+            401,
             "Access Denied: You do not have the necessary permissions.",
             next
           );
         }
       } catch (err) {
         Helper.sendError(
-          403,
+          401,
           "Access Denied: You do not have the necessary permissions.",
           next
         );
@@ -122,14 +122,14 @@ module.exports = {
           next();
         } else {
           Helper.sendError(
-            403,
+            401,
             "Access Denied: You do not have the necessary permissions.",
             next
           );
         }
       } catch (err) {
         Helper.sendError(
-          403,
+          401,
           "Access Denied: You do not have the necessary permissions.",
           next
         );

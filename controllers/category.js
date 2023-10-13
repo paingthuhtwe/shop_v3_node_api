@@ -30,17 +30,69 @@ const add = async (req, res, next) => {
 const get = async (req, res, next) => {
   try {
     const category = await DB.findById(req.params.id);
-    if (category) {
-      Helper.fMsg(res, `Category for id - ${req.params.id}`, category);
-    } else {
+    if (!category) {
       Helper.sendError(
         404,
         `No Records found for requested id - ${req.params.id}`,
         next
       );
+      return;
     }
+    Helper.fMsg(res, `Category for id - ${req.params.id}`, category);
   } catch (error) {
     Helper.sendError(500, `Error fetching category: ${error.message}`, next);
+  }
+};
+
+const patch = async (req, res, next) => {
+  try {
+    const dbCategory = await DB.findById(req.params.id);
+    if (!dbCategory) {
+      Helper.sendError(
+        404,
+        `No Records found for requested id - ${req.params.id}`,
+        next
+      );
+      return;
+    }
+    if (!req.body.name && !req.files) {
+      Helper.sendError(400, "Provide data ( name or image ) to update.", next);
+      return;
+    }
+    if (req.body.name && req.files) {
+      if (
+        req.body.name === dbCategory.name &&
+        req.files.image &&
+        req.files.image.name === dbCategory.image
+      ) {
+        Helper.sendError(400, "Category is up to date.", next);
+        return;
+      }
+    } else {
+      if (
+        req.body.name === dbCategory.name ||
+        (req.files &&
+          req.files.image &&
+          req.files.image.name === dbCategory.image)
+      ) {
+        Helper.sendError(400, "Category is up to date.", next);
+        return;
+      }
+    }
+    const updateData = {};
+    if (req.body.name) {
+      updateData["name"] = req.body.name;
+    }
+    if (req.files && req.files.image) {
+      deleteFile(dbCategory.image);
+      saveSingleFile("image", req);
+      updateData["image"] = req.files.image.name;
+    }
+    await DB.findByIdAndUpdate(dbCategory._id, updateData);
+    const result = await DB.findById(dbCategory._id);
+    Helper.fMsg(res, "Category updated successfully!", result);
+  } catch (error) {
+    Helper.sendError(500, `Error updating category: ${error.message}`, next);
   }
 };
 
@@ -50,7 +102,7 @@ const drop = async (req, res, next) => {
     if (dbCategory) {
       await DB.findByIdAndDelete(dbCategory._id);
       deleteFile(dbCategory.image);
-      Helper.fMsg(res, "Permission deleted successfully!");
+      Helper.fMsg(res, "Category deleted successfully!");
     } else {
       Helper.sendError(
         404,
@@ -59,8 +111,8 @@ const drop = async (req, res, next) => {
       );
     }
   } catch (error) {
-    Helper.sendError(500, `Error deleting permission: ${error.message}`, next);
+    Helper.sendError(500, `Error deleting category: ${error.message}`, next);
   }
 };
 
-module.exports = { all, add, get, drop };
+module.exports = { all, add, get, patch, drop };
