@@ -48,4 +48,13 @@ module.exports = {
       permit_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
   },
+  CategorySchema: {
+    add: joi.object({
+        name: joi.string().required(),
+        image: joi.string().required(),
+    }),
+    image: joi.object({
+        image: joi.object().required(),
+    })
+  }
 };

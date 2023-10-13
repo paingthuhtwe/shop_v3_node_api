@@ -5,32 +5,36 @@ const {
   validateBody,
   validateParams,
   validateToken,
+  validateRole,
 } = require("../utils/validator");
 
-router.get("/", validateToken(), controller.all);
-router.post("/", validateToken(), validateBody(RoleSchema.add), controller.add);
+router.get("/", validateToken(), validateRole(['Owner', 'Manager', 'Supervisor']), controller.all);
+router.post("/", validateToken(), validateRole(['Owner']), validateBody(RoleSchema.add), controller.add);
 router.post(
   "/add/permit",
   validateToken(),
+  validateRole(['Owner']),
   validateBody(RoleSchema.addPermit),
   controller.roleAddPermit
 );
 router.delete(
   "/remove/permit",
   validateToken(),
+  validateRole(['Owner']),
   validateBody(RoleSchema.addPermit),
   controller.roleRemovePermit
 );
 
 router
   .route("/:id")
-  .get(validateToken(), validateParams(AllSchema.id, "id"), controller.get)
+  .get(validateToken(), validateRole(['Owner', 'Manager', 'Supervisor']), validateParams(AllSchema.id, "id"), controller.get)
   .patch(
     validateToken(),
+    validateRole(['Owner']),
     validateBody(RoleSchema.add),
     validateParams(AllSchema.id, "id"),
     controller.patch
   )
-  .delete(validateToken(), validateParams(AllSchema.id, "id"), controller.drop);
+  .delete(validateToken(), validateRole(['Owner']), validateParams(AllSchema.id, "id"), controller.drop);
 
 module.exports = router;

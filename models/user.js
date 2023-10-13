@@ -8,7 +8,8 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   role: [{ type: Schema.Types.ObjectId, ref: "role" }],
   permits: [{ type: Schema.Types.ObjectId, ref: "permit" }],
-  created: { type: Date, default: Date.now },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("user", UserSchema);

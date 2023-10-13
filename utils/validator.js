@@ -32,6 +32,35 @@ module.exports = {
       }
     };
   },
+  validateFile: (schema, name) => {
+    return (req, res, next) => {
+      let obj = {};
+      if (!req.files) {
+        Helper.sendError(400, `Validation Error: ${name} is required.`, next);
+        return;
+      }
+      obj[name] = req.files[name];
+      if (!obj[name].mimetype.startsWith("image/")) {
+        Helper.sendError(
+          400,
+          `Validation Error: ${name} must be an image.`,
+          next
+        );
+        return;
+      }
+      let result = schema.validate(obj);
+      if (result.error) {
+        Helper.sendError(
+          400,
+          `Validation Error: ${result.error.details[0].message}`,
+          next
+        );
+      } else {
+        req.body[name] = obj[name].name;
+        next();
+      }
+    };
+  },
   validateToken: () => {
     return async (req, res, next) => {
       try {
@@ -62,7 +91,9 @@ module.exports = {
   validateRole: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqRole = req.user.role.find((role) => payload.includes(role.name));
+        const reqRole = req.user.role.find((role) =>
+          payload.includes(role.name)
+        );
         if (reqRole) {
           next();
         } else {
@@ -84,7 +115,9 @@ module.exports = {
   validatePermit: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqPermit = req.user.permits.find((permit) => payload.includes(permit.name));
+        const reqPermit = req.user.permits.find((permit) =>
+          payload.includes(permit.name)
+        );
         if (reqPermit) {
           next();
         } else {
