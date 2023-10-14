@@ -56,5 +56,15 @@ module.exports = {
     image: joi.object({
         image: joi.object().required(),
     })
-  }
+  },
+  SubCategorySchema: {
+    add: joi.object({
+        name: joi.string().required(),
+        image: joi.string().required(),
+    }),
+    image: joi.object({
+        image: joi.object().required(),
+    })
+  },
+
 };

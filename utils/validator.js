@@ -65,24 +65,27 @@ module.exports = {
     return async (req, res, next) => {
       try {
         const token = req.headers.authorization;
-        !token && Helper.sendError(401, "Authorization Token Required", next);
-        if (token && token.startsWith("Bearer ")) {
-          const realToken = token.split(" ")[1];
-          const decode = jwt.verify(realToken, process.env.SECRET_KEY);
-          if (decode) {
-            const redisUserData = await Helper.redisGet(decode._id);
-            if (redisUserData) {
-              req.user = redisUserData;
-              next();
-            } else {
-              Helper.sendError(401, "Token Authorization Failed", next);
-            }
-          } else {
-            Helper.sendError(401, "Invalid Token", next);
-          }
-        } else {
-          Helper.sendError(401, "Invalid Token Format", next);
+        if (!token) {
+          Helper.sendError(401, "Authorization Token Required", next);
+          return;
         }
+        if (!token.startsWith("Bearer ")) {
+          Helper.sendError(401, "Invalid Token Format", next);
+          return;
+        }
+        const realToken = token.split(" ")[1];
+        const decode = jwt.verify(realToken, process.env.SECRET_KEY);
+        if (!decode) {
+          Helper.sendError(401, "Invalid Token", next);
+          return;
+        }
+        const redisUserData = await Helper.redisGet(decode._id);
+        if (!redisUserData) {
+          Helper.sendError(401, "Token Authorization Failed", next);
+          return;
+        }
+        req.user = redisUserData;
+        next();
       } catch (err) {
         Helper.sendError(401, `Token Verification Error: ${err.message}`, next);
       }
@@ -115,7 +118,7 @@ module.exports = {
   validatePermit: (payload = []) => {
     return async (req, res, next) => {
       try {
-        console.log(req.user)
+        console.log(req.user);
         const reqPermit = req.user.permits.filter((permit) =>
           payload.includes(permit.name)
         );
