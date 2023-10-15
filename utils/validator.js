@@ -118,7 +118,6 @@ module.exports = {
   validatePermit: (payload = []) => {
     return async (req, res, next) => {
       try {
-        console.log(req.user);
         const reqPermit = req.user.permits.filter((permit) =>
           payload.includes(permit.name)
         );

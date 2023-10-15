@@ -1,10 +1,13 @@
 const DB = require("../models/category");
+const SubCategoryDB = require("../models/sub_category");
 const { saveSingleFile, deleteFile } = require("../utils/file");
 const Helper = require("../utils/helper");
 
 const all = async (req, res, next) => {
   try {
-    const categories = await DB.find();
+    const categories = await DB.find()
+      .populate("sub_categories", "-__v")
+      .select("-__v");
     Helper.fMsg(res, "All Categories", categories);
   } catch (error) {
     Helper.sendError(500, `Error fetching categories: ${error.message}`, next);
@@ -20,7 +23,9 @@ const add = async (req, res, next) => {
     }
     saveSingleFile("image", req);
     await new DB(req.body).save();
-    const result = await DB.findOne({ name: req.body.name });
+    const result = await DB.findOne({ name: req.body.name })
+      .populate("sub_categories", "-__v")
+      .select("-__v");
     Helper.fMsg(res, "Category added successfully.", result);
   } catch (error) {
     Helper.sendError(500, `Error adding category: ${error.message}`, next);
@@ -29,7 +34,9 @@ const add = async (req, res, next) => {
 
 const get = async (req, res, next) => {
   try {
-    const category = await DB.findById(req.params.id);
+    const category = await DB.findById(req.params.id)
+      .populate("sub_categories", "-__v")
+      .select("-__v");
     if (!category) {
       Helper.sendError(
         404,
@@ -89,7 +96,9 @@ const patch = async (req, res, next) => {
       updateData["image"] = req.files.image.name;
     }
     await DB.findByIdAndUpdate(dbCategory._id, updateData);
-    const result = await DB.findById(dbCategory._id);
+    const result = await DB.findById(dbCategory._id)
+      .populate("sub_categories", "-__v")
+      .select("-__v");
     Helper.fMsg(res, "Category updated successfully!", result);
   } catch (error) {
     Helper.sendError(500, `Error updating category: ${error.message}`, next);
@@ -115,4 +124,76 @@ const drop = async (req, res, next) => {
   }
 };
 
-module.exports = { all, add, get, patch, drop };
+const addSubCategory = async (req, res, next) => {
+  try {
+    const [dbCategory, dbSubCategory] = [
+      await DB.findById(req.body.category_id),
+      await SubCategoryDB.findById(req.body.sub_category_id),
+    ];
+    if (!dbCategory || !dbSubCategory) {
+      Helper.sendError(404, "Invalid category or sub category", next);
+      return;
+    }
+    const checkExist = dbCategory.sub_categories.includes(dbSubCategory._id);
+    if (checkExist) {
+      Helper.sendError(
+        400,
+        "The sub category has already been added to the category.",
+        next
+      );
+      return;
+    }
+    await DB.findByIdAndUpdate(dbCategory._id, {
+      $push: { sub_categories: dbSubCategory._id },
+      updated_at: Helper.currentDate(),
+    });
+    const result = await DB.findById(dbCategory._id)
+      .populate("sub_categories", "-__v")
+      .select("-__v");
+    Helper.fMsg(res, "Sub category added successfully!", result);
+  } catch (error) {
+    Helper.sendError(500, `Error adding sub category: ${error.message}`, next);
+  }
+};
+
+const removeSubCategory = async (req, res, next) => {
+  try {
+    const [dbCategory, dbSubCategory] = [
+      await DB.findById(req.body.categories_id),
+      await SubCategoryDB.findById(req.body.sub_categories_id),
+    ];
+    if (!dbCategory || !dbSubCategory) {
+      Helper.sendError(404, "Invalid category or sub category", next);
+      return;
+    }
+    const checkExist = dbCategory.sub_categories.includes(dbSubCategory._id);
+    if (checkExist) {
+      Helper.sendError(204, "Sub category already exists", next);
+      return;
+    }
+    await DB.findByIdAndUpdate(dbCategory._id, {
+      $pull: { sub_categories: dbSubCategory._id },
+      updated_at: Helper.currentDate(),
+    });
+    const result = await DB.findById(dbCategory._id)
+      .populate("sub_categories", "-__v")
+      .select("-__v");
+    Helper.fMsg(res, "Sub category removed successfully!", result);
+  } catch (error) {
+    Helper.sendError(
+      500,
+      `Error removing sub category: ${error.message}`,
+      next
+    );
+  }
+};
+
+module.exports = {
+  all,
+  add,
+  get,
+  patch,
+  drop,
+  addSubCategory,
+  removeSubCategory,
+};
