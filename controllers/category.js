@@ -158,21 +158,20 @@ const addSubCategory = async (req, res, next) => {
 
 const removeSubCategory = async (req, res, next) => {
   try {
-    const [dbCategory, dbSubCategory] = [
-      await DB.findById(req.body.categories_id),
-      await SubCategoryDB.findById(req.body.sub_categories_id),
-    ];
-    if (!dbCategory || !dbSubCategory) {
-      Helper.sendError(404, "Invalid category or sub category", next);
+    const dbCategory = await DB.findById(req.body.category_id);
+    if (!dbCategory) {
+      Helper.sendError(404, "Invalid category id.", next);
       return;
     }
-    const checkExist = dbCategory.sub_categories.includes(dbSubCategory._id);
-    if (checkExist) {
-      Helper.sendError(204, "Sub category already exists", next);
+    const checkExist = dbCategory.sub_categories.includes(
+      req.body.sub_category_id
+    );
+    if (!checkExist) {
+      Helper.sendError(409, "Sub category does not exists.", next);
       return;
     }
     await DB.findByIdAndUpdate(dbCategory._id, {
-      $pull: { sub_categories: dbSubCategory._id },
+      $pull: { sub_categories: req.body.sub_category_id },
       updated_at: Helper.currentDate(),
     });
     const result = await DB.findById(dbCategory._id)

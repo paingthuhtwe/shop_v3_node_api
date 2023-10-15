@@ -10,6 +10,9 @@ module.exports = {
     id: joi.object({
       id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
+    image: joi.object({
+      image: joi.object().required(),
+    }),
   },
   RoleSchema: {
     add: joi.object({
@@ -53,9 +56,6 @@ module.exports = {
         name: joi.string().required(),
         image: joi.string().required(),
     }),
-    image: joi.object({
-        image: joi.object().required(),
-    }),
     addSub: joi.object({
       category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
       sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
@@ -71,9 +71,21 @@ module.exports = {
         image: joi.string().required(),
         category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
-    image: joi.object({
-        image: joi.object().required(),
-    })
+    addChild: joi.object({
+      sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      child_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    }),
+    removeChild: joi.object({
+      sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      child_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    }),
+  },
+  ChildCategorySchema: {
+    add: joi.object({
+        name: joi.string().required(),
+        image: joi.string().required(),
+        sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    }),
   },
 
 };
