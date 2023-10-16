@@ -12,6 +12,7 @@ const userRouter = require('./routes/user');
 const categoryRouter = require('./routes/category');
 const subCategoryRouter = require('./routes/sub_category');
 const childCategoryRouter = require('./routes/child_category');
+const tagRouter = require('./routes/tag');
 
 app.use('/api/permits', permitRouter)
 app.use('/api/roles', roleRouter)
@@ -19,6 +20,7 @@ app.use('/api', userRouter)
 app.use('/api/categories', categoryRouter)
 app.use('/api/sub-categories', subCategoryRouter)
 app.use('/api/child-categories', childCategoryRouter)
+app.use('/api/tags', tagRouter)
 
 app.use((error, req, res, next) => {
     res.status(error?.status ?? 500).json({ success: 0, message: error.message})

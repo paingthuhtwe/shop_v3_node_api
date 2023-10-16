@@ -87,5 +87,10 @@ module.exports = {
         sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
   },
-
+  TagSchema: {
+    add: joi.object({
+      name: joi.string().required(),
+      image: joi.string().required(),
+    })
+  }
 };
