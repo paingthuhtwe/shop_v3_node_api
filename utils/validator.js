@@ -94,9 +94,7 @@ module.exports = {
   validateRole: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqRole = req.user.role.find((role) =>
-          payload.includes(role.name)
-        );
+        const reqRole = payload.includes(req.user.role.name);
         if (reqRole) {
           next();
         } else {
@@ -118,10 +116,11 @@ module.exports = {
   validatePermit: (payload = []) => {
     return async (req, res, next) => {
       try {
-        const reqPermit = req.user.permits.filter((permit) =>
-          payload.includes(permit.name)
-        );
-        if (reqPermit) {
+        const [reqPermit, reqPermitFromRole] = [
+          req.user.permits.find((permit) => payload.includes(permit.name)),
+          req.user.role.permits.find((permit) => payload.includes(permit.name)),
+        ];
+        if (reqPermit || reqPermitFromRole) {
           next();
         } else {
           Helper.sendError(

@@ -6,7 +6,7 @@ const Helper = require("../utils/helper");
 
 const all = async (req, res, next) => {
   try {
-    const sub_categories = await DB.find().populate("child_categories", "-__v");
+    const sub_categories = await DB.find().populate("child_categories", "-__v").select('-__v');
     Helper.fMsg(res, "All Sub Categories", sub_categories);
   } catch (error) {
     Helper.sendError(
@@ -53,7 +53,7 @@ const get = async (req, res, next) => {
     const subCategory = await DB.findById(req.params.id).populate(
       "child_categories",
       "-__v"
-    );
+    ).select('-__v');
     if (!subCategory) {
       Helper.sendError(
         404,

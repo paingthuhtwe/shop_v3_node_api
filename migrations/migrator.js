@@ -32,7 +32,7 @@ async function backupUsers() {
 
 async function migrate() {
   try {
-    await mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.DB_NAME}`, {
+    await mongoose.connect(`${process.env.DB_URL}${process.env.DB_NAME}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -74,6 +74,13 @@ async function migrate() {
     // Migrate Permits
     await PermitDB.insertMany(permits);
     console.log("\x1b[32m3. Permit Migration Completed.\x1b[0m\n");
+
+    const role = await RoleDB.findOne({name: 'Owner'});
+    await UserDB.findOneAndUpdate({name: 'Owner'}, { role: role._id });
+
+    const dbPermits = await PermitDB.find();
+    const defaultPermits = dbPermits.map((permit) => permit._id);
+    await RoleDB.updateMany({_id: role._id}, { $set: { permits: defaultPermits } });
 
     console.log(
       "\n\x1b[32m----- Migration Process Completed Successfully -----\x1b[0m\n"

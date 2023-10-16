@@ -84,8 +84,7 @@ const addRole = async (req, res, next) => {
       Helper.sendError(400, "Invalid user or role.", next);
       return;
     }
-    const checkExist = dbUser.role.includes(dbRole._id);
-    if (checkExist) {
+    if (dbUser?.role?.toString() === dbRole._id.toString()) {
       Helper.sendError(
         400,
         "The role has already been added to the user.",
@@ -94,7 +93,7 @@ const addRole = async (req, res, next) => {
       return;
     }
     Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
-    await UserDB.findByIdAndUpdate(dbUser._id, { $push: { role: dbRole._id }, updated_at: Helper.currentDate() });
+    await UserDB.findByIdAndUpdate(dbUser._id, { role: dbRole._id, updated_at: Helper.currentDate() });
     const result = await UserDB.findById(dbUser._id)
       .populate("role permits", "-__v")
       .select("-__v -password");
@@ -111,8 +110,7 @@ const removeRole = async (req, res, next) => {
       Helper.sendError(400, "Invalid user_id.", next);
       return;
     }
-    const checkExist = dbUser.role.includes(req.body.role_id);
-    if (!checkExist) {
+    if (dbUser?.role?.toString() !== req.body.role_id.toString()) {
       Helper.sendError(
         400,
         "The role has already been removed from the user.",
@@ -122,7 +120,7 @@ const removeRole = async (req, res, next) => {
     }
     Helper.redisGet(dbUser._id) && Helper.redisDrop(dbUser._id)
     await UserDB.findByIdAndUpdate(dbUser._id, {
-      $pull: { role: req.body.role_id },
+      $unset: { role: 1 },
       updated_at: Helper.currentDate()
     });
     const result = await UserDB.findById(dbUser._id)
