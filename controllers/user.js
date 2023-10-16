@@ -32,7 +32,8 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const dbUser = await UserDB.findOne({ phone: req.body.phone })
-      .populate("role permits", "-__v")
+      .populate({path: 'role', select: '-__v', populate: {path: 'permits', select: '-__v'}})
+      .populate({path: 'permits', select: '-__v'})
       .select("-__v");
     if (dbUser) {
       if (Helper.verifyPassword(req.body.password, dbUser.password)) {
@@ -63,10 +64,11 @@ const login = async (req, res, next) => {
 
 const all = async (req, res, next) => {
   try {
-    const roles = await UserDB.find()
-      .populate("role permits", "-__v")
+    const users = await UserDB.find()
+      .populate({path: 'role', select: '-__v', populate: {path: 'permits', select: '-__v'}})
+      .populate({path: 'permits', select: '-__v'})
       .select("-__v -password");
-    Helper.fMsg(res, "All Users", roles);
+    Helper.fMsg(res, "All Users", users);
   } catch (error) {
     Helper.sendError(500, `Error fetching user data: ${error.message}`, next);
   }
