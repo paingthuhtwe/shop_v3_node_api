@@ -4,10 +4,10 @@ const { Schema } = mongoose;
 
 const DeliverySchema = new Schema({
   name: { type: String, required: true, unique: true },
-  price: { type: Number, required: true },
+  price: { type: Number, required: true, min: 0 },
   duration: { type: String, required: true },
   image: { type: String, required: true },
-  remark: { type: String , nullable: true },
+  remark: { type: String , default: null },
   created_at: { type: Date, default: helper.currentDate() },
   updated_at: { type: Date, default: helper.currentDate() }
 });

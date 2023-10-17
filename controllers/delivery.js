@@ -80,7 +80,7 @@ const drop = async (req, res, next) => {
             return;
         }
         await DB.findByIdAndDelete(delivery._id);
-        Helper.fMsg(res, "Delivery deleted successfully.", delivery);
+        Helper.fMsg(res, "Delivery deleted successfully.");
     } catch (error) {
         Helper.sendError(500, `Error deleting delivery: ${error.message}`, next);
     }
