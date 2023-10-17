@@ -51,7 +51,13 @@ const patch = async (req, res, next) => {
             updated_at: Helper.currentDate()
         }
         if (req.body.name) updatedData['name'] = req.body.name;
-        if (req.body.price) updatedData['price'] = req.body.price;
+        if (req.body.price) {
+            if (req.body.price < 0) {
+                Helper.sendError(400, "Price must be greater than or equal to zero.", next);
+                return;
+            }
+            updatedData['price'] = req.body.price;
+        }   
         if (req.body.duration) updatedData['duration'] = req.body.duration;
         if (req.files && req.files.image) {
             saveSingleFile('image', req);
