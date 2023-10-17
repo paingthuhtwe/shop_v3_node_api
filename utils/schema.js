@@ -92,5 +92,14 @@ module.exports = {
       name: joi.string().required(),
       image: joi.string().required(),
     })
+  },
+  DeliverySchema: {
+    add: joi.object({
+      name: joi.string().required(),
+      price: joi.number().min(0).required(),
+      duration: joi.string().required(),
+      image: joi.string().required(),
+      remark: joi.string()
+    })
   }
 };
