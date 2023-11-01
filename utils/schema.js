@@ -101,5 +101,12 @@ module.exports = {
       image: joi.string().required(),
       remark: joi.allow(null),
     })
+  },
+  WarrantySchema: {
+    add: joi.object({
+      name: joi.string().required(),
+      image: joi.string().required(),
+      remark: joi.allow(null),
+    })
   }
 };

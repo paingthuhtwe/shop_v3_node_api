@@ -67,7 +67,7 @@ const patch = async (req, res, next) => {
         if (req.body.remark) updatedData['remark'] = req.body.remark;
         const { name, price, duration, image, remark } = req.body;
         if (!name && !price && !duration && !image && !remark) {
-            Helper.fMsg(res, "Provide data to update.");
+            Helper.sendError(400, "Provide data to update.", next);
             return;
         } 
         await DB.findByIdAndUpdate(dbDelivery._id, updatedData);
