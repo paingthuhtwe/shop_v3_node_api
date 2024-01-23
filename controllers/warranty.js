@@ -15,7 +15,7 @@ const add = async (req, res, next) => {
   try {
     const dbWarranty = await DB.findOne({ name: req.body.name });
     if (dbWarranty) {
-      Helper.sendError(400, "Warranty already exists", next);
+      Helper.sendError(409, "Warranty already exists", next);
       return;
     }
     saveSingleFile("image", req);

@@ -53,8 +53,8 @@ module.exports = {
   },
   CategorySchema: {
     add: joi.object({
-        name: joi.string().required(),
-        image: joi.string().required(),
+      name: joi.string().required(),
+      image: joi.string().required(),
     }),
     addSub: joi.object({
       category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
@@ -63,13 +63,13 @@ module.exports = {
     removeSub: joi.object({
       category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
       sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
-    })
+    }),
   },
   SubCategorySchema: {
     add: joi.object({
-        name: joi.string().required(),
-        image: joi.string().required(),
-        category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      name: joi.string().required(),
+      image: joi.string().required(),
+      category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
     addChild: joi.object({
       sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
@@ -82,16 +82,16 @@ module.exports = {
   },
   ChildCategorySchema: {
     add: joi.object({
-        name: joi.string().required(),
-        image: joi.string().required(),
-        sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
+      name: joi.string().required(),
+      image: joi.string().required(),
+      sub_category_id: joi.string().regex(/^[0-9a-fA-F]{24}$/),
     }),
   },
   TagSchema: {
     add: joi.object({
       name: joi.string().required(),
       image: joi.string().required(),
-    })
+    }),
   },
   DeliverySchema: {
     add: joi.object({
@@ -100,13 +100,35 @@ module.exports = {
       duration: joi.string().required(),
       image: joi.string().required(),
       remark: joi.allow(null),
-    })
+    }),
   },
   WarrantySchema: {
     add: joi.object({
       name: joi.string().required(),
       image: joi.string().required(),
       remark: joi.allow(null),
-    })
-  }
+    }),
+  },
+  ProductSchema: {
+    add: joi.object({
+      name: joi.string().required(),
+      price: joi.number().min(0).required(),
+      images: joi.array().items(joi.string().required()),
+      brand: joi.string().required(),
+      category: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(''),
+      sub_category: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(''),
+      child_category: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(''),
+      tag: joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(''),
+      discount: joi.number().min(0).allow(''),
+      features: joi.string().required(),
+      description: joi.string().required(),
+      detail: joi.string().required(),
+      stock: joi.number().min(0).allow(''),
+      deliveries: joi.string().required(),
+      warranties: joi.string().required(),
+      colors: joi.string().required(),
+      size: joi.string().required(),
+      rating: joi.string().allow(''),
+    }),
+  },
 };
